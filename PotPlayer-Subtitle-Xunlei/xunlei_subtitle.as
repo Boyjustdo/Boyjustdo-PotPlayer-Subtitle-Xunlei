@@ -1,0 +1,55 @@
+/*
+     迅雷字幕搜索插件 for PotPlayer
+ */
+ 
+ // 插件元信息
+ string GetTitle() {
+     return "迅雷在线字幕";
+ }
+ 
+ string GetVersion() {
+     return "1.0";
+ }
+ 
+ string GetDesc() {
+     return "通过迅雷 API 搜索电影字幕";
+ }
+ 
+ // 核心搜索逻辑
+ array<Dictionary> OnSearchSubtitles(string MovieName, string FileName) {
+     array<Dictionary> results;
+     
+     // 优先使用电影名，如果没有则使用文件名
+     string query = MovieName;
+     if (query.empty()) query = FileName;
+     if (query.empty()) return results;
+ 
+     // 构建请求 URL (注意：AngelScript 环境下可能需要处理 URL 编码)
+     string url = "http://api-shoulei-ssl.xunlei.com/oracle/subtitle?name=" + HostUrlEncode(query);
+     
+     // 发起请求
+     string headers = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0\r\n";
+     headers += "Accept: */*\r\n";
+     
+     string json = HostUrlGetString(url, headers);
+     
+     // 解析 JSON (假设返回的是包含字幕列表的结构)
+     // 注意：PotPlayer 的 Json 解析器用法取决于版本，这里演示通用逻辑
+     JsonReader reader;
+     JsonValue root;
+     if (reader.parse(json, root) && root.isObject()) {
+         JsonValue list = root["subtitles"]; // 这里的字段名需根据迅雷 API 实际返回结构调整
+         if (list.isArray()) {
+             for (int i = 0; i < list.size(); i++) {
+                 JsonValue sub = list[i];
+                 Dictionary item;
+                 item["name"] = sub["sname"].asString(); // 字幕标题
+                 item["url"] = sub["surl"].asString();   // 下载地址
+                 item["format"] = "srt";                 // 格式后缀
+                 results.insertLast(item);
+             }
+         }
+     }
+ 
+     return results;
+ }
