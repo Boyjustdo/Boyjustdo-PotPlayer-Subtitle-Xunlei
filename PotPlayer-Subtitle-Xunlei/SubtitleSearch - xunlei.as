@@ -43,7 +43,8 @@ array<dictionary> SubtitleSearch(string MovieFileName, dictionary MovieMetaData)
              for (int i = 0; i < list.size(); i++) {
                  JsonValue sub = list[i];
                  dictionary item;
-                 item["title"] = sub["name"].asString(); // 字幕标题
+				 item["id"] = sub["url"].asString();
+                 item["fileName"] = sub["name"].asString(); // 字幕标题
                  item["url"] = sub["url"].asString();   // 下载地址
                  item["format"] = sub["ext"].asString(); // 使用实际返回的格式后缀
                  results.insertLast(item);
@@ -53,7 +54,8 @@ array<dictionary> SubtitleSearch(string MovieFileName, dictionary MovieMetaData)
  
      return results;
  }
-string SubtitleDownload(string download)
+ 
+string SubtitleDownload(string url)
 {
-	return download;
+	return HostUrlGetString(url);
 }
