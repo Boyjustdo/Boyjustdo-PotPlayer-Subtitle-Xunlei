@@ -16,16 +16,16 @@
  }
  
  // 核心搜索逻辑
- array<Dictionary> OnSearchSubtitles(string MovieName, string FileName) {
-     array<Dictionary> results;
+array<dictionary> SubtitleSearch(string MovieFileName, dictionary MovieMetaData)
+{
+     array<dictionary> results;
      
      // 优先使用电影名，如果没有则使用文件名
-     string query = MovieName;
-     if (query.empty()) query = FileName;
+     string query = string(MovieMetaData["title"]);;
      if (query.empty()) return results;
  
      // 构建请求 URL (注意：AngelScript 环境下可能需要处理 URL 编码)
-     string url = "http://api-shoulei-ssl.xunlei.com/oracle/subtitle?name=" + HostUrlEncode(query);
+     string url = "http://api-shoulei-ssl.xunlei.com/oracle/subtitle?name=" + query;
      
      // 发起请求
      string headers = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0\r\n";
@@ -42,8 +42,8 @@
          if (list.isArray()) {
              for (int i = 0; i < list.size(); i++) {
                  JsonValue sub = list[i];
-                 Dictionary item;
-                 item["name"] = sub["name"].asString(); // 字幕标题
+                 dictionary item;
+                 item["title"] = sub["name"].asString(); // 字幕标题
                  item["url"] = sub["url"].asString();   // 下载地址
                  item["format"] = sub["ext"].asString(); // 使用实际返回的格式后缀
                  results.insertLast(item);
@@ -53,3 +53,7 @@
  
      return results;
  }
+string SubtitleDownload(string download)
+{
+	return download;
+}
